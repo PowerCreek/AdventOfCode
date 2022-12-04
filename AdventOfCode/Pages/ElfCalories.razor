@@ -1,0 +1,41 @@
+﻿@page "/elfcalories"
+@using CalorieCountingElves.Project;
+
+<style>
+    .enter-input{
+        padding: 8px;
+        margin: 8px;
+        border-radius: 4px;
+        background-color: lightblue;
+        width: min-content;
+        height: min-content;
+        white-space: nowrap;
+    }
+
+    .text-blocks{
+        padding: 4px;
+        margin: 4px;
+    }
+
+</style>
+
+<div >Elf Calories</div>
+
+<textarea @bind=@CalorieProcessor.InputString/>
+<div class="enter-input" @onclick=@OnSubmitInput>Submit</div>
+
+<div class="text-blocks">Answer: </div>
+<div class="text-blocks">@ElfCalorieAnswer</div>
+
+@code{
+
+    public CalorieProcessor CalorieProcessor = new CalorieProcessor();
+
+    public long? ElfCalorieAnswer { get; set; }
+
+    public async void OnSubmitInput(MouseEventArgs args)
+    {
+        ElfCalorieAnswer = await Task.Run(()=>CalorieProcessor.GetElfWithTheMostCalories(CalorieProcessor)?.Calories);
+        InvokeAsync(StateHasChanged);
+    }
+}
