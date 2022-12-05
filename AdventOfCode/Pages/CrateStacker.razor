@@ -1,0 +1,43 @@
+﻿@page "/cratestacker"
+@using CalorieCountingElves.Project;
+
+<style>
+    .enter-input{
+        padding: 8px;
+        margin: 8px;
+        border-radius: 4px;
+        background-color: lightblue;
+        width: min-content;
+        height: min-content;
+        white-space: nowrap;
+    }
+
+    .text-blocks{
+        padding: 4px;
+        margin: 4px;
+    }
+
+</style>
+
+<div>Elf Crates</div>
+
+<textarea @bind=@StackProcessor.InputString />
+<div class="enter-input" @onclick=@OnSubmitInput>Submit</div>
+
+<div class="text-blocks">Answer 1: </div>
+<div>@StackCrateAnswer1</div>
+
+
+@code{
+
+    public StackProcessor StackProcessor = new StackProcessor();
+
+    public string StackCrateAnswer1 { get; set; }
+
+    public async void OnSubmitInput(MouseEventArgs args)
+    {
+        var result = await Task.Run(() => StackProcessor.GetTopCrates(StackProcessor));
+        StackCrateAnswer1 = result;
+        InvokeAsync(StateHasChanged);
+    }
+}
