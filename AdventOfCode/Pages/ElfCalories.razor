@@ -1,5 +1,6 @@
 ﻿@page "/elfcalories"
 @using CalorieCountingElves.Project;
+@using Microsoft.AspNetCore.Html
 
 <style>
     .enter-input{
@@ -24,18 +25,41 @@
 <textarea @bind=@CalorieProcessor.InputString/>
 <div class="enter-input" @onclick=@OnSubmitInput>Submit</div>
 
-<div class="text-blocks">Answer: </div>
-<div class="text-blocks">@ElfCalorieAnswer</div>
+<div class="text-blocks">Part 1 Answer: </div>
+<div class="text-blocks">@TopElfCalorieAnswer</div>
+<br/>
+<div class="text-blocks">Part 2 Answer: </div>
+
+<div class="text-blocks">Total Calories = @SumOfTheTopElvesCount</div>
+<div class="text-blocks">@TopThreeElvesAnswer</div>
 
 @code{
 
     public CalorieProcessor CalorieProcessor = new CalorieProcessor();
 
-    public long? ElfCalorieAnswer { get; set; }
+    public string TopElfCalorieAnswer { get; set; }
+    public RenderFragment TopThreeElvesAnswer { get; set; }
+
+    public long? SumOfTheTopElvesCount { get; set; }
 
     public async void OnSubmitInput(MouseEventArgs args)
     {
-        ElfCalorieAnswer = await Task.Run(()=>CalorieProcessor.GetElfWithTheMostCalories(CalorieProcessor)?.Calories);
+        var topElfResult = await Task.Run(()=>CalorieProcessor.GetElfWithTheMostCalories(CalorieProcessor));
+
+        TopElfCalorieAnswer = $"Elf #{topElfResult?.Id} has {topElfResult?.Calories} calories";
+
+        RenderFragment answer = default;
+
+        var elvesOrderedList = (await Task.Run(() => CalorieProcessor.GetElvesSortedByCalories(CalorieProcessor).TakeWhile((a, i) => i < 3)));
+
+        foreach (var v in elvesOrderedList){
+            answer +=(@<div>@($"Elf #{v.Id} with {v.Calories} calories")</div>);
+        }
+
+        SumOfTheTopElvesCount = elvesOrderedList.Sum(a=>a.Calories);
+
+        TopThreeElvesAnswer = answer;
+
         InvokeAsync(StateHasChanged);
     }
 }

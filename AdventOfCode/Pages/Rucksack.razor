@@ -1,0 +1,60 @@
+﻿@page "/rucksack"
+@using CalorieCountingElves.Project;
+
+<style>
+    .enter-input{
+        padding: 8px;
+        margin: 8px;
+        border-radius: 4px;
+        background-color: lightblue;
+        width: min-content;
+        height: min-content;
+        white-space: nowrap;
+    }
+
+    .text-blocks{
+        padding: 4px;
+        margin: 4px;
+    }
+
+</style>
+
+<div>Rucksack</div>
+
+<textarea @bind=@RucksackProcessor.InputString />
+<div class="enter-input" @onclick=@OnSubmitInput>Submit</div>
+
+<div class="text-blocks">Answer 1: </div>
+<div>@RucksackAnswer1</div>
+
+<div class="text-blocks">Answer 2: </div>
+<div>@RucksackAnswer2</div>
+<div>@RucksackCommonItems</div>
+
+<div class="text-blocks">Item Values: </div>
+<div>@RucksackItems</div>
+
+@code{
+
+    public RucksackProcessor RucksackProcessor = new RucksackProcessor();
+
+    public RenderFragment RucksackItems { get; set; }
+    public long RucksackAnswer1 { get; set; }
+    public object RucksackAnswer2 { get; set; }
+    public RenderFragment RucksackCommonItems { get; set; }
+
+    public async void OnSubmitInput(MouseEventArgs args)
+    {
+        var result = await Task.Run(() => RucksackProcessor.AllDuplicates(RucksackProcessor));
+
+        RucksackItems = result.Select(e =>(RenderFragment)(@<div>@e @(e?.CharCode())</div>)).Aggregate((a,b)=>a+b);
+
+        RucksackAnswer1 = (long)result.Sum(e => e?.CharCode());
+
+        var commonItems = RucksackProcessor.TotalGroupItems(RucksackProcessor);
+        RucksackAnswer2 = commonItems.Total;
+        RucksackCommonItems = commonItems.Characters.Select(e => (RenderFragment)(@<div>@e</div>)).Aggregate((a, b) => a+b);
+
+        InvokeAsync(StateHasChanged);
+    }
+}

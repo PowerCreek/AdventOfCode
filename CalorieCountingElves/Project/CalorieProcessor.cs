@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CalorieCountingElves.Project
+﻿namespace CalorieCountingElves.Project
 {
-
     public class CalorieProcessor
     {
         public string InputString { get; set; }
@@ -14,12 +7,16 @@ namespace CalorieCountingElves.Project
 
         public static ElfEntry? GetElfWithTheMostCalories(CalorieProcessor processor)
         {
+            return GetElvesSortedByCalories(processor).FirstOrDefault();
+        }
+
+        public static IEnumerable<ElfEntry> GetElvesSortedByCalories(CalorieProcessor processor)
+        {
             if (processor.InputString is not { Length: > 0 }) return default;
 
-            var inputData = CalorieProcessor.StringGroups(processor.InputString).Select((e,i)=> new ElfEntry(i,e));
-            var elfWithMostCalories = inputData.GroupBy(e => e.Calories).OrderByDescending(e=>e.Key).FirstOrDefault()?.FirstOrDefault();
-            
-            return elfWithMostCalories;
+            var inputData = CalorieProcessor.StringGroups(processor.InputString).Select((e, i) => new ElfEntry(i, e));
+            var orderedElves = inputData.OrderByDescending(e => e.Calories);
+            return orderedElves;
         }
 
         public static IEnumerable<long?> StringGroups(string s)
